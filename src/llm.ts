@@ -24,8 +24,13 @@ const tools: ChatCompletionTool[] = [
             type: "string",
             description: "The amount of ETH to send (e.g. '0.001')",
           },
+          network: {
+            type: "string",
+            enum: ["base", "sepolia"],
+            description: "The network to use: 'base' for Base mainnet, 'sepolia' for Ethereum Sepolia testnet",
+          },
         },
-        required: ["to", "amount"],
+        required: ["to", "amount", "network"],
       },
     },
   },
@@ -36,18 +41,24 @@ const tools: ChatCompletionTool[] = [
       description: "Check the current ETH balance of the wallet",
       parameters: {
         type: "object",
-        properties: {},
-        required: [],
+        properties: {
+          network: {
+            type: "string",
+            enum: ["base", "sepolia"],
+            description: "The network to use: 'base' for Base mainnet, 'sepolia' for Ethereum Sepolia testnet",
+          },
+        },
+        required: ["network"],
       },
     },
   },
 ];
 
-const SYSTEM_PROMPT = `You are an AI wallet agent on Base chain. Your job is to interpret user requests and call the appropriate wallet function.
+const SYSTEM_PROMPT = `You are an AI wallet agent. Your job is to interpret user requests and call the appropriate wallet function.
 
 You have two tools available:
-- send_eth: Send ETH to a recipient address. Requires "to" (address) and "amount" (ETH as a string).
-- get_balance: Check the wallet's ETH balance. No parameters needed.
+- send_eth: Send ETH to a recipient address. Requires "to" (address), "amount" (ETH as a string), and "network" ("base" for Base mainnet or "sepolia" for Ethereum Sepolia testnet).
+- get_balance: Check the wallet's ETH balance. Requires "network" parameter ("base" or "sepolia").
 
 Always use a tool call to respond. Never respond with plain text.`;
 
@@ -77,9 +88,10 @@ export async function parseIntent(userMessage: string): Promise<WalletIntent> {
         action: "send_eth",
         to: parsed.to,
         amount: parsed.amount,
+        network: parsed.network,
       };
     case "get_balance":
-      return { action: "get_balance" };
+      return { action: "get_balance", network: parsed.network };
     default:
       throw new Error(`Unknown tool call: ${name}`);
   }

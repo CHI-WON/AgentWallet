@@ -8,12 +8,12 @@ export async function handleUserInput(input: string): Promise<string> {
 
     switch (intent.action) {
       case "send_eth": {
-        const hash = await sendETH(intent.to as Address, intent.amount);
-        return `Transaction sent! Hash: ${hash}`;
+        const hash = await sendETH(intent.to as Address, intent.amount, intent.network);
+        return `Transaction sent on ${intent.network}! Hash: ${hash}`;
       }
       case "get_balance": {
-        const balance = await getBalance();
-        return `Balance: ${balance} ETH`;
+        const balance = await getBalance(intent.network);
+        return `Balance on ${intent.network}: ${balance} ETH`;
       }
       default:
         return "Unknown action. Try 'Send ETH to ...' or 'Check my balance'.";

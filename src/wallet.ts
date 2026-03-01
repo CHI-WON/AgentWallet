@@ -5,9 +5,10 @@ import {
   parseEther,
   formatEther,
 } from "viem";
-import { base, baseSepolia } from "viem/chains";
+import { base, baseSepolia, sepolia } from "viem/chains";
 import { privateKeyToAccount } from "viem/accounts";
 import type { Address, Hash } from "viem";
+import type { Network } from "./types.js";
 
 const privateKey = process.env.PRIVATE_KEY as `0x${string}`;
 
@@ -28,7 +29,25 @@ const publicClient = createPublicClient({
   transport: http("https://mainnet.base.org"),
 });
 
-export async function sendETH(to: Address, amount: string): Promise<Hash> {
+const sepoliaWalletClient = createWalletClient({
+  account,
+  chain: sepolia,
+  transport: http("https://rpc.sepolia.org"),
+});
+
+const sepoliaPublicClient = createPublicClient({
+  chain: sepolia,
+  transport: http("https://rpc.sepolia.org"),
+});
+
+export async function sendETH(to: Address, amount: string, network: Network): Promise<Hash> {
+  if (network === "sepolia") {
+    const hash = await sepoliaWalletClient.sendTransaction({
+      to,
+      value: parseEther(amount),
+    });
+    return hash;
+  }
   const hash = await walletClient.sendTransaction({
     to,
     value: parseEther(amount),
@@ -36,8 +55,9 @@ export async function sendETH(to: Address, amount: string): Promise<Hash> {
   return hash;
 }
 
-export async function getBalance(): Promise<string> {
-  const balance = await publicClient.getBalance({
+export async function getBalance(network: Network): Promise<string> {
+  const client = network === "sepolia" ? sepoliaPublicClient : publicClient;
+  const balance = await client.getBalance({
     address: account.address,
   });
   return formatEther(balance);

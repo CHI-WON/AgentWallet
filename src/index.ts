@@ -9,9 +9,10 @@ const rl = readline.createInterface({
 });
 
 console.log("\n=================================");
-console.log("  AI Agent Wallet (Base Chain)");
+console.log("  AI Agent Wallet");
 console.log("=================================");
 console.log(`  Address: ${getAddress()}`);
+console.log("  Supported networks: Base, Sepolia");
 console.log("  Type 'exit' to quit.\n");
 
 function prompt() {
