@@ -20,6 +20,8 @@ Edit `.env` and fill in:
 
 - `DEEPSEEK_API_KEY` — your DeepSeek API key from [platform.deepseek.com](https://platform.deepseek.com)
 - `PRIVATE_KEY` — your Ethereum private key (0x-prefixed, with Base ETH for gas)
+- `INFURA_BASE_RPC_URL` — your Infura Base mainnet RPC endpoint
+- `INFURA_SEPOLIA_RPC_URL` — your Infura Sepolia RPC endpoint
 
 ### 3. Run
 

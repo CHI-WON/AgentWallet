@@ -5,15 +5,29 @@ import {
   parseEther,
   formatEther,
 } from "viem";
-import { base, baseSepolia, sepolia } from "viem/chains";
+import { base, sepolia } from "viem/chains";
 import { privateKeyToAccount } from "viem/accounts";
 import type { Address, Hash } from "viem";
 import type { Network } from "./types.js";
 
-const privateKey = process.env.PRIVATE_KEY as `0x${string}`;
-
-if (!privateKey) {
+const rawPrivateKey = process.env.PRIVATE_KEY;
+if (!rawPrivateKey) {
   throw new Error("PRIVATE_KEY is not set in environment variables");
+}
+
+const privateKey = rawPrivateKey.startsWith("0x")
+  ? (rawPrivateKey as `0x${string}`)
+  : (`0x${rawPrivateKey}` as `0x${string}`);
+
+const baseRpcUrl = process.env.INFURA_BASE_RPC_URL;
+const sepoliaRpcUrl = process.env.INFURA_SEPOLIA_RPC_URL;
+
+if (!baseRpcUrl) {
+  throw new Error("INFURA_BASE_RPC_URL is not set in environment variables");
+}
+
+if (!sepoliaRpcUrl) {
+  throw new Error("INFURA_SEPOLIA_RPC_URL is not set in environment variables");
 }
 
 const account = privateKeyToAccount(privateKey);
@@ -21,23 +35,23 @@ const account = privateKeyToAccount(privateKey);
 const walletClient = createWalletClient({
   account,
   chain: base,
-  transport: http("https://mainnet.base.org"),
+  transport: http(baseRpcUrl),
 });
 
 const publicClient = createPublicClient({
   chain: base,
-  transport: http("https://mainnet.base.org"),
+  transport: http(baseRpcUrl),
 });
 
 const sepoliaWalletClient = createWalletClient({
   account,
   chain: sepolia,
-  transport: http("https://rpc.sepolia.org"),
+  transport: http(sepoliaRpcUrl),
 });
 
 const sepoliaPublicClient = createPublicClient({
   chain: sepolia,
-  transport: http("https://rpc.sepolia.org"),
+  transport: http(sepoliaRpcUrl),
 });
 
 export async function sendETH(to: Address, amount: string, network: Network): Promise<Hash> {
